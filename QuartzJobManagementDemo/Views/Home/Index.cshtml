@@ -2,7 +2,185 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@model IndexViewModel
+
+<a class="btn btn-info mb-4" href="/hangfire">JOBS</a>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+
+}
+<div class="accordion mb-2" id="accordionExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Create Custom Job
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+            <div class="accordion-body ">
+                <form asp-controller="Home" asp-action="SaveCustomJob">
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Job Name</span>
+                        <input type="text" name="JobName" class="form-control" placeholder="Job Name" aria-describedby="basic-addon1">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Job Type</span>
+                        <select name="JobType" class="form-control">
+                            <option value=@JobType.MessagePrinter.Value>@JobType.MessagePrinter.Text</option>
+                            <option value=@JobType.MailSender.Value>@JobType.MailSender.Text</option>
+                            <option value=@JobType.Cleaner.Value>@JobType.Cleaner.Text</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Message Text</span>
+                        <input type="text" name="MessageText" class="form-control" placeholder="Message Text" aria-describedby="basic-addon1">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Created By</span>
+                        <input type="text" name="CreatedBy" value="ahmet" class="form-control" placeholder="Created By" aria-describedby="basic-addon1">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Created Date</span>
+                        <input type="date" name="CreatedDate" class="form-control" placeholder="Created Date" aria-describedby="basic-addon1">
+                    </div>
+
+                    <button class="btn btn-primary mt-3" type="submit">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Schedule Job
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <form asp-controller="Home" asp-action="ScheduleCustomJob">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Custom Job</span>
+                        <select name="jobId" class="form-control">
+                            @foreach (var item in Model.CustomJobs)
+                            {
+                                <option value="@item.Name">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Cron Expression</span>
+                        <input type="text" name="cronExpression" class="form-control" placeholder="Cron Expression" aria-describedby="basic-addon1">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<div class="p-2 border mb-2" style="height: 400px; overflow-y: auto;">
+    <h1>Messages</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Text</th>
+                <th scope="col">Created By</th>
+                <th scope="col">Created Date</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Messages)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.Text</td>
+                    <td>@item.CreatedBy</td>
+                    <td>@item.CreatedDate</td>
+                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteMessage" asp-route-id="@item.Id">Sil</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="p-2 border  mb-2" style="height: 400px; overflow-y: auto;">
+    <h1>Custom Jobs</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Job Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Text</th>
+                <th scope="col">Created By</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CustomJobs)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Type</td>
+                    <td>@item.Text</td>
+                    <td>@item.CreatedBy</td>
+                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJob" asp-route-id="@item.Name">Sil</a></td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+</div>
+<div class="p-2 border" style="height: 400px; overflow-y: auto;">
+    <h1>Custom Job Schedules</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Job Name</th>
+                <th scope="col">CRON</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CustomJobSchedules)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.CRON</td>
+                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJobSchedule" asp-route-id="@item.Id">Sil</a></td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const addToSecondBtn = document.getElementById("addToSecond");
+    const removeFromSecondBtn = document.getElementById("removeFromSecond");
+    const listbox1 = document.getElementById("listbox1");
+    const listbox2 = document.getElementById("listbox2");
+
+    addToSecondBtn.addEventListener("click", () => {
+        const selectedOptions = Array.from(listbox1.selectedOptions);
+        selectedOptions.forEach(option => {
+            listbox2.appendChild(option);
+        });
+    });
+
+    removeFromSecondBtn.addEventListener("click", () => {
+        const selectedOptions = Array.from(listbox2.selectedOptions);
+        selectedOptions.forEach(option => {
+            listbox1.appendChild(option);
+        });
+    });
+</script>

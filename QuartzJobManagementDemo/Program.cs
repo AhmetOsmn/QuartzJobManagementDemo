@@ -1,7 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using QuartzJobManagementDemo.Context;
+using QuartzJobManagementDemo.Services.Abstract;
+using QuartzJobManagementDemo.Services.Concrete;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<JobDemoContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection")));
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IJobService, JobService>();
 
 var app = builder.Build();
 
@@ -19,6 +28,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<JobDemoContext>();
+    dbContext.Database.Migrate();
+}
 
 app.MapControllerRoute(
     name: "default",
