@@ -29,6 +29,12 @@ namespace QuartzJobManagementDemo.Services.Concrete
             _dbContext.SaveChanges();
         }
 
+        public void DeleteAll()
+        {
+            _dbContext.RemoveRange(_dbContext.Messages);
+            _dbContext.SaveChanges();
+        }
+
         public List<Message> GetAll()
         {
             return _dbContext.Messages.ToList();

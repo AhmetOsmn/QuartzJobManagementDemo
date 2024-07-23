@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using QuartzJobManagementDemo.Models;
+using QuartzJobManagementDemo.QuartzJobs;
 using QuartzJobManagementDemo.Services.Abstract;
 using System.Diagnostics;
 
@@ -16,13 +17,13 @@ namespace QuartzJobManagementDemo.Controllers
             _jobService = jobService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
                 var messages = _messageService.GetAll();
-                var jobs = _jobService.GetAll();
-                var customJobSchedules = _jobService.GetJobSchedules();
+                var jobs = await _jobService.GetAllAsync();
+                var customJobSchedules = await _jobService.GetJobSchedulesAsync();
 
                 return View(new IndexViewModel() { Messages = messages, CustomJobs = jobs, CustomJobSchedules = customJobSchedules });
 
@@ -34,7 +35,7 @@ namespace QuartzJobManagementDemo.Controllers
             }
         }
 
-        public async Task<IActionResult> SaveCustomJobAsync(SaveJobRequestModel saveJobRequestModel)
+        public async Task<IActionResult> SaveCustomJob(SaveJobRequestModel saveJobRequestModel)
         {
 
             try
@@ -43,6 +44,11 @@ namespace QuartzJobManagementDemo.Controllers
                 {
                     Name = saveJobRequestModel.JobName,
                     Type = saveJobRequestModel.JobType,
+                    Parameters = new() {
+                        { MessagePrinterJobParameters.Message, saveJobRequestModel.MessageText ?? string.Empty },
+                        { MessagePrinterJobParameters.CreatedBy, saveJobRequestModel.CreatedBy },
+                        { MessagePrinterJobParameters.CreatedDate, saveJobRequestModel.CreatedDate.ToString() }
+                    }
                 });
             }
             catch (Exception ex)
@@ -53,11 +59,11 @@ namespace QuartzJobManagementDemo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult ScheduleCustomJob(string jobId, string cronExpression)
+        public async Task<IActionResult> ScheduleCustomJob(string jobName, string cronExpression)
         {
             try
             {
-                _jobService.Schedule(jobId, cronExpression);
+                await _jobService.ScheduleAsync(jobName, cronExpression);
             }
             catch (Exception ex)
             {
@@ -66,11 +72,11 @@ namespace QuartzJobManagementDemo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult DeleteJob(string id)
+        public IActionResult DeleteJob(string name)
         {
             try
             {
-                _jobService.Delete(id);
+                _jobService.DeleteAsync(name);
             }
             catch (Exception ex)
             {
@@ -92,11 +98,11 @@ namespace QuartzJobManagementDemo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult DeleteJobSchedule(string id)
+        public IActionResult DeleteMessages()
         {
             try
             {
-                _jobService.DeleteJobSchedule(id);
+                _messageService.DeleteAll();
             }
             catch (Exception ex)
             {
@@ -105,7 +111,18 @@ namespace QuartzJobManagementDemo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
+        public async Task<IActionResult> DeleteJobSchedule(string name)
+        {
+            try
+            {
+                await _jobService.DeleteJobScheduleAsync(name);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

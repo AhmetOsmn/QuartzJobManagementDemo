@@ -5,10 +5,10 @@ namespace QuartzJobManagementDemo.Services.Abstract
     public interface IJobService
     {
         Task AddAsync(JobViewModel jobViewModel);
-        void Schedule(string jobId, string cronExpression);
-        void Delete(string id);
-        void DeleteJobSchedule(string id);
-        List<CustomJob> GetAll();
-        List<CustomJobSchedule> GetJobSchedules();
+        Task ScheduleAsync(string jobName, string cronExpression);
+        Task DeleteAsync(string name);
+        Task DeleteJobScheduleAsync(string name);
+        Task<List<CustomJob>> GetAllAsync();
+        Task<List<CustomJobSchedule>> GetJobSchedulesAsync();
     }
 }

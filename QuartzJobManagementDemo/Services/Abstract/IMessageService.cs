@@ -6,6 +6,7 @@ namespace QuartzJobManagementDemo.Services.Abstract
     {
         void Add(string text, DateTime? jobCreatedDate, string createdBy);
         void Delete(int id);
+        void DeleteAll();
         List<Message> GetAll();
     }
 }

@@ -5,7 +5,6 @@
 
 @model IndexViewModel
 
-<a class="btn btn-info mb-4" href="/hangfire">JOBS</a>
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger" role="alert">
@@ -69,16 +68,19 @@
                 <form asp-controller="Home" asp-action="ScheduleCustomJob">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Custom Job</span>
-                        <select name="jobId" class="form-control">
+                        <select name="jobName" class="form-control">
                             @foreach (var item in Model.CustomJobs)
                             {
                                 <option value="@item.Name">@item.Name</option>
                             }
                         </select>
                     </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">Cron Expression</span>
-                        <input type="text" name="cronExpression" class="form-control" placeholder="Cron Expression" aria-describedby="basic-addon1">
+                    <div class="d-flex flex-column mb-3">
+                        <div class="input-group mb-1">
+                            <span class="input-group-text" id="basic-addon1">Cron Expression</span>
+                            <input type="text" name="cronExpression" class="form-control" placeholder="Cron Expression" aria-describedby="basic-addon1">
+                        </div>
+                        <a href="https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html" target="_blank">Quartz Cron Expression</a>
                     </div>
                     <button class="btn btn-primary" type="submit">Save</button>
                 </form>
@@ -97,7 +99,7 @@
                 <th scope="col">Text</th>
                 <th scope="col">Created By</th>
                 <th scope="col">Created Date</th>
-                <th scope="col"></th>
+                <th scope="col"><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteMessages">Hepsini Sil</a></th>
             </tr>
         </thead>
         <tbody>
@@ -134,7 +136,7 @@
                     <td>@item.Type</td>
                     <td>@item.Text</td>
                     <td>@item.CreatedBy</td>
-                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJob" asp-route-id="@item.Name">Sil</a></td>
+                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJob" asp-route-name="@item.Name">Sil</a></td>
                 </tr>
 
             }
@@ -155,9 +157,9 @@
             @foreach (var item in Model.CustomJobSchedules)
             {
                 <tr>
-                    <th scope="row">@item.Id</th>
+                    <th scope="row">@item.Name</th>
                     <td>@item.CRON</td>
-                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJobSchedule" asp-route-id="@item.Id">Sil</a></td>
+                    <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJobSchedule" asp-route-name="@item.Name">Sil</a></td>
                 </tr>
 
             }
