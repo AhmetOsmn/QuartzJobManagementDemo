@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using QuartzJobManagementDemo.Context;
 using QuartzJobManagementDemo.Services.Abstract;
 using QuartzJobManagementDemo.Services.Concrete;
@@ -11,6 +12,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<JobDemoContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection")));
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IJobService, JobService>();
+
+builder.Services.AddQuartz(cfg =>
+{
+    cfg.UsePersistentStore(store =>
+    {
+        store.UseProperties = true;
+        store.UseSystemTextJsonSerializer();        
+        store.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection"));
+    });
+});
+builder.Services.AddQuartzHostedService(opt =>
+{
+    opt.WaitForJobsToComplete = true;
+});
 
 var app = builder.Build();
 

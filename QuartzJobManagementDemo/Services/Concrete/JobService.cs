@@ -1,15 +1,23 @@
-﻿using QuartzJobManagementDemo.Models;
+﻿using Quartz;
+using QuartzJobManagementDemo.Configuration;
+using QuartzJobManagementDemo.Models;
+using QuartzJobManagementDemo.QuartzJobs;
 using QuartzJobManagementDemo.Services.Abstract;
 
 namespace QuartzJobManagementDemo.Services.Concrete
 {
-    public class JobService : IJobService
+    public class JobService(ISchedulerFactory schedulerFactory) : IJobService
     {
-        public void Add(JobViewModel jobViewModel)
+        private readonly ISchedulerFactory _schedulerFactory = schedulerFactory;
+
+        public async Task AddAsync(JobViewModel jobViewModel)
         {
             switch (jobViewModel.Type)
             {
-                case "MessagePrinter":
+                case "MessagePrinter":                    
+                    var scheduler = await _schedulerFactory.GetScheduler();
+                    var job = JobBuilder.Create<MessagePrinterJob>().WithIdentity(jobViewModel.Name).StoreDurably().Build();         
+                    await scheduler.AddJob(job, false);
                     break;
 
                 default:
@@ -19,27 +27,27 @@ namespace QuartzJobManagementDemo.Services.Concrete
 
         public void Delete(string id)
         {
-            throw new Exception();
+
         }
 
         public void DeleteJobSchedule(string id)
         {
-            throw new Exception();
+
         }
 
         public List<CustomJob> GetAll()
         {
-            throw new Exception();
+            return new();
         }
 
         public List<CustomJobSchedule> GetJobSchedules()
         {
-            throw new Exception();
+            return new();
         }
 
         public void Schedule(string jobId, string cronExpression)
         {
-            throw new Exception();
+
         }
 
         private T GetRecurringJobParameters<T>(string jobId) where T : class

@@ -4,7 +4,7 @@ namespace QuartzJobManagementDemo.Services.Abstract
 {
     public interface IJobService
     {
-        void Add(JobViewModel jobViewModel);
+        Task AddAsync(JobViewModel jobViewModel);
         void Schedule(string jobId, string cronExpression);
         void Delete(string id);
         void DeleteJobSchedule(string id);

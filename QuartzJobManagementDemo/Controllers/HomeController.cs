@@ -34,15 +34,15 @@ namespace QuartzJobManagementDemo.Controllers
             }
         }
 
-        public IActionResult SaveCustomJob(SaveJobRequestModel saveJobRequestModel)
+        public async Task<IActionResult> SaveCustomJobAsync(SaveJobRequestModel saveJobRequestModel)
         {
 
             try
             {
-                _jobService.Add(new JobViewModel()
+                await _jobService.AddAsync(new JobViewModel()
                 {
                     Name = saveJobRequestModel.JobName,
-                    Type = saveJobRequestModel.JobType,                    
+                    Type = saveJobRequestModel.JobType,
                 });
             }
             catch (Exception ex)
