@@ -15,7 +15,7 @@ namespace QuartzJobManagementDemo.Services.Concrete
 
         public void Add(string text, DateTime? jobCreatedDate, string createdBy)
         {
-            _dbContext.Add(new Message { Text = text, CreatedBy = createdBy, JobCreatedDate = jobCreatedDate, CreatedDate = DateTime.Now });
+            _dbContext.Add(new Message { Text = text, CreatedBy = createdBy, JobCreatedDate = jobCreatedDate.HasValue ? jobCreatedDate.Value.ToUniversalTime() : null, CreatedDate = DateTime.Now.ToUniversalTime() });
             _dbContext.SaveChanges();
         }
 

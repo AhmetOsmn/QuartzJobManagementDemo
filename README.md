@@ -1,6 +1,19 @@
 # QuartzJobManagementDemo
 
-- [Quartz Database Scripts](https://github.com/quartznet/quartznet/tree/main/database/tables)
+- Demo EF Core ile geliştirildi. Kullanmak istediğiniz database'i `appsettings.json` içerisinde alt kısımdaki alanları düzenleyerek belirleyebilirsiniz.
+  
+  ```json
+  {
+    "ConnectionStrings": {
+        "SqlServer": "Server=localhost, 1433;Database=QuartzJobManagement;User Id=sa;{{Password}}=password;TrustServerCertificate=True", // password düzeltilmeli.
+        "Postgres": "User ID=postgres;Password={{password}};Host=localhost;Port=5432;Database=QuartzJobManagement;" // password düzeltilmeli.
+    },
+    "Database": "Postgres" // SqlServer veya Postgres olabilir.
+  }
+  ```
+
+- Sonrasında migration ekleyerek database'i oluşturabilirsiniz. 
+  Son olarak, Quartz için gerekli tabloları oluşturmak için seçtiğiniz database'e uygun olan script'i [buradan](https://github.com/quartznet/quartznet/tree/main/database/tables) alarak çalıştırmalısınız.
 
 ## Job Tanımlama Alanı
 

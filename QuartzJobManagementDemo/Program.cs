@@ -6,10 +6,18 @@ using QuartzJobManagementDemo.Services.Concrete;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var database = builder.Configuration.GetSection("Database").Value ?? throw new InvalidOperationException("Database is null or empty.");
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<JobDemoContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection")));
+builder.Services.AddDbContext<JobDemoContext>(opt =>
+{
+    if (database == "SqlServer")
+        opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
+    else if (database == "Postgres")
+        opt.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
+});
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IJobService, JobService>();
 
@@ -18,8 +26,13 @@ builder.Services.AddQuartz(cfg =>
     cfg.UsePersistentStore(store =>
     {
         store.UseProperties = true;
-        store.UseSystemTextJsonSerializer();        
-        store.UseSqlServer(builder.Configuration.GetConnectionString("QuartzConnection"));
+        store.UseSystemTextJsonSerializer();
+
+        if (database == "SqlServer")
+            store.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string is null or empty."));
+
+        else if (database == "Postgres")
+            store.UsePostgres(builder.Configuration.GetConnectionString("Postgres") ?? throw new InvalidOperationException("Connection string is null or empty."));
     });
 });
 builder.Services.AddQuartzHostedService(opt =>
@@ -43,12 +56,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<JobDemoContext>();
-    dbContext.Database.Migrate();
-}
 
 app.MapControllerRoute(
     name: "default",
