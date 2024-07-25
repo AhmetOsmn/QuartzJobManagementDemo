@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuartzJobManagementDemo", "QuartzJobManagementDemo\QuartzJobManagementDemo.csproj", "{B1224E5F-EA7E-416F-A122-D3522C3BDFCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuartzJobManagementDemo", "QuartzJobManagementDemo\QuartzJobManagementDemo.csproj", "{B1224E5F-EA7E-416F-A122-D3522C3BDFCB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuartzJobManagementDemo.Shared", "QuartzJobManagementDemo.Shared\QuartzJobManagementDemo.Shared.csproj", "{34795E93-06A4-4EC3-BDD3-440C189F2F43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuartzJobManagementDemo.Chronos", "QuartzJobManagementDemo.Chronos\QuartzJobManagementDemo.Chronos.csproj", "{E1C450F7-DC95-4C70-A9FE-706B5B6B1CCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{B1224E5F-EA7E-416F-A122-D3522C3BDFCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1224E5F-EA7E-416F-A122-D3522C3BDFCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1224E5F-EA7E-416F-A122-D3522C3BDFCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34795E93-06A4-4EC3-BDD3-440C189F2F43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34795E93-06A4-4EC3-BDD3-440C189F2F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34795E93-06A4-4EC3-BDD3-440C189F2F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34795E93-06A4-4EC3-BDD3-440C189F2F43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1C450F7-DC95-4C70-A9FE-706B5B6B1CCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1C450F7-DC95-4C70-A9FE-706B5B6B1CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1C450F7-DC95-4C70-A9FE-706B5B6B1CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1C450F7-DC95-4C70-A9FE-706B5B6B1CCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

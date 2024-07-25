@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Quartz;
-using QuartzJobManagementDemo.Context;
-using QuartzJobManagementDemo.Extensions;
-using QuartzJobManagementDemo.Services.Abstract;
-using QuartzJobManagementDemo.Services.Concrete;
-using Log = Serilog.Log;
+using QuartzJobManagementDemo.Shared.Context;
+using QuartzJobManagementDemo.Shared.Extensions;
+using QuartzJobManagementDemo.Shared.Services.Abstract;
+using QuartzJobManagementDemo.Shared.Services.Concrete;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +41,20 @@ builder.Services.AddQuartz(cfg =>
 builder.Services.AddQuartzHostedService(opt =>
 {
     opt.WaitForJobsToComplete = true;
+});
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddPublishMessageScheduler();
+
+    x.AddQuartzConsumers();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.UsePublishMessageScheduler();
+
+        cfg.ConfigureEndpoints(context);
+    });
 });
 
 builder.UseMySerilog();

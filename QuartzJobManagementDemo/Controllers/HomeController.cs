@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using QuartzJobManagementDemo.Models;
-using QuartzJobManagementDemo.QuartzJobs;
-using QuartzJobManagementDemo.Services.Abstract;
+using QuartzJobManagementDemo.Shared.Models;
+using QuartzJobManagementDemo.Shared.Services.Abstract;
 using Serilog;
 using System.Diagnostics;
 
@@ -47,9 +46,9 @@ namespace QuartzJobManagementDemo.Controllers
                     Name = saveJobRequestModel.JobName,
                     Type = saveJobRequestModel.JobType,
                     Parameters = new() {
-                        { MessagePrinterJobParameters.Message, saveJobRequestModel.MessageText ?? string.Empty },
-                        { MessagePrinterJobParameters.CreatedBy, saveJobRequestModel.CreatedBy },
-                        { MessagePrinterJobParameters.CreatedDate, saveJobRequestModel.CreatedDate.ToString() }
+                        { "Message", saveJobRequestModel.MessageText ?? string.Empty },
+                        { "CreatedBy", saveJobRequestModel.CreatedBy },
+                        { "CreatedDate", saveJobRequestModel.CreatedDate.ToString() }
                     }
                 });
             }
