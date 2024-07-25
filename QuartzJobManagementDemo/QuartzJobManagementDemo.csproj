@@ -23,6 +23,9 @@
 		<PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.11.0" />
 		<PackageReference Include="Quartz.Extensions.Hosting" Version="3.11.0" />
 		<PackageReference Include="Quartz.Serialization.SystemTextJson" Version="3.11.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+		<PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />		
 	</ItemGroup>
 
 </Project>

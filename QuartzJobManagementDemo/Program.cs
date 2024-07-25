@@ -1,8 +1,10 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Quartz;
 using QuartzJobManagementDemo.Context;
+using QuartzJobManagementDemo.Extensions;
 using QuartzJobManagementDemo.Services.Abstract;
 using QuartzJobManagementDemo.Services.Concrete;
+using Log = Serilog.Log;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,7 @@ builder.Services.AddDbContext<JobDemoContext>(opt =>
     else if (database == "Postgres")
         opt.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
 });
+
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IJobService, JobService>();
 
@@ -39,6 +42,8 @@ builder.Services.AddQuartzHostedService(opt =>
 {
     opt.WaitForJobsToComplete = true;
 });
+
+builder.UseMySerilog();
 
 var app = builder.Build();
 

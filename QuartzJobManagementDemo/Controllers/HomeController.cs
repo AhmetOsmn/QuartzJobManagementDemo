@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuartzJobManagementDemo.Models;
 using QuartzJobManagementDemo.QuartzJobs;
 using QuartzJobManagementDemo.Services.Abstract;
+using Serilog;
 using System.Diagnostics;
 
 namespace QuartzJobManagementDemo.Controllers
@@ -31,6 +32,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while getting index page.");
                 return View(new IndexViewModel() { CustomJobs = new(), Messages = new() });
             }
         }
@@ -54,6 +56,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while saving job. {JobName}", saveJobRequestModel.JobName);
             }
 
             return RedirectToAction(nameof(Index));
@@ -68,6 +71,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while scheduling job. {JobName}", jobName);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -81,6 +85,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while deleting job. {JobName}", name);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -94,6 +99,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while deleting message. {MessageId}", id);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -107,6 +113,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while deleting messages.");
             }
             return RedirectToAction(nameof(Index));
         }
@@ -120,6 +127,7 @@ namespace QuartzJobManagementDemo.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
+                Log.Error(ex, "An error occurred while deleting job schedule. {JobName}", name);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -127,6 +135,7 @@ namespace QuartzJobManagementDemo.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            Log.Error("An error occurred. {RequestId}", Activity.Current?.Id ?? HttpContext.TraceIdentifier);
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
