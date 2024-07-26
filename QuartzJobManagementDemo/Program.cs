@@ -1,10 +1,12 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
-using QuartzJobManagementDemo.Shared.Context;
+using QuartzJobManagementDemo.Context;
+using QuartzJobManagementDemo.Publishers;
+using QuartzJobManagementDemo.Services.Abstract;
+using QuartzJobManagementDemo.Services.Concrete;
+using QuartzJobManagementDemo.Shared;
 using QuartzJobManagementDemo.Shared.Extensions;
-using QuartzJobManagementDemo.Shared.Services.Abstract;
-using QuartzJobManagementDemo.Shared.Services.Concrete;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,37 +23,38 @@ builder.Services.AddDbContext<JobDemoContext>(opt =>
         opt.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
 });
 
+builder.Services.AddScoped<IMessageCreatedEventPublisher, MessageCreatedEventPublisher>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IJobService, JobService>();
 
-builder.Services.AddQuartz(cfg =>
-{
-    cfg.UsePersistentStore(store =>
-    {
-        store.UseProperties = true;
-        store.UseSystemTextJsonSerializer();
+//builder.Services.AddQuartz(cfg =>
+//{
+//    cfg.UsePersistentStore(store =>
+//    {
+//        store.UseProperties = true;
+//        store.UseSystemTextJsonSerializer();
 
-        if (database == "SqlServer")
-            store.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string is null or empty."));
+//        if (database == "SqlServer")
+//            store.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string is null or empty."));
 
-        else if (database == "Postgres")
-            store.UsePostgres(builder.Configuration.GetConnectionString("Postgres") ?? throw new InvalidOperationException("Connection string is null or empty."));
-    });
-});
-builder.Services.AddQuartzHostedService(opt =>
-{
-    opt.WaitForJobsToComplete = true;
-});
+//        else if (database == "Postgres")
+//            store.UsePostgres(builder.Configuration.GetConnectionString("Postgres") ?? throw new InvalidOperationException("Connection string is null or empty."));
+//    });
+//});
+//builder.Services.AddQuartzHostedService(opt =>
+//{
+//    opt.WaitForJobsToComplete = true;
+//});
 
 builder.Services.AddMassTransit(x =>
-{
-    x.AddPublishMessageScheduler();
-
-    x.AddQuartzConsumers();
-
+{    
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.UsePublishMessageScheduler();
+        cfg.Host(new Uri(RmqConfig.RmqUri), h =>
+        {
+            h.Username(RmqConfig.RmqUserName);
+            h.Password(RmqConfig.RmqPassword);
+        });
 
         cfg.ConfigureEndpoints(context);
     });

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using QuartzJobManagementDemo.Shared.Models;
-using QuartzJobManagementDemo.Shared.Services.Abstract;
+using QuartzJobManagementDemo.Models;
+using QuartzJobManagementDemo.Services.Abstract;
 using Serilog;
 using System.Diagnostics;
 

@@ -7,17 +7,24 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MassTransit.Quartz" Version="8.2.3" />
+	  <None Remove="Protos\chronos.proto" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
 		<PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.11.0" />
 		<PackageReference Include="Quartz.Extensions.Hosting" Version="3.11.0" />
 		<PackageReference Include="Quartz.Serialization.SystemTextJson" Version="3.11.0" />
-		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\QuartzJobManagementDemo.Shared\QuartzJobManagementDemo.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Protobuf Include="Protos\chronos.proto" GrpcServices="Client" />
 	</ItemGroup>
 
 </Project>

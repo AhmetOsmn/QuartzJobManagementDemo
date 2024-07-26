@@ -1,4 +1,7 @@
-﻿namespace QuartzJobManagementDemo.Shared.Messages.Event
+﻿using MassTransit;
+
+namespace QuartzJobManagementDemo.Shared.Messages.Event
 {
-    public record MessageCreated(string Message, string Sender, string Receiver, DateTime CreationDate);
+    [EntityName("MessageCreated")]
+    public record MessageCreated(int MessageId, string Message, string Sender, string Receiver);
 }
