@@ -1,6 +1,9 @@
 ﻿using MassTransit;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using QuartzJobManagementDemo.Chronos;
@@ -10,14 +13,27 @@ using QuartzJobManagementDemo.Chronos.Services.Abstract;
 using QuartzJobManagementDemo.Chronos.Services.Concrete;
 using QuartzJobManagementDemo.QuartzJobManagementDemo.Chronos.Context;
 using QuartzJobManagementDemo.Shared;
+using QuartzJobManagementDemo.Shared.Extensions;
 
 Console.Title = "Chronos";
 
-var database = "Postgres";
-var sqlServerConnectionString = "Server=localhost, 1433;Database=QuartzJobManagement.Chronos;User Id=sa;Password=password;TrustServerCertificate=True";
-var postgresConnectionString = "User ID=postgres;Password=password;Host=localhost;Port=5432;Database=QuartzJobManagement.Chronos;";
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configuration = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+           .Build();
+
+var database = configuration["Database"];
+var sqlServerConnectionString = configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Sql Server connection string is null or empty.");
+var postgresConnectionString = configuration.GetConnectionString("Postgres") ?? throw new InvalidOperationException("Postgres connection string is null or empty");
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5000, o => o.Protocols =
+        HttpProtocols.Http2);
+});
 
 builder.Services.AddDbContext<ChronosDbContext>(opt =>
 {
@@ -51,6 +67,26 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddHostedService<MassTransitConsoleHostedService>();
 
+builder.Services.AddQuartz(cfg =>
+{
+    cfg.UsePersistentStore(store =>
+    {
+        store.UseProperties = true;
+        store.UseSystemTextJsonSerializer();
+
+        if (database == "SqlServer")
+            store.UseSqlServer(sqlServerConnectionString);
+
+        else if (database == "Postgres")
+            store.UsePostgres(postgresConnectionString);
+    });
+});
+builder.Services.AddQuartzHostedService(opt =>
+{
+    opt.WaitForJobsToComplete = true;
+});
+
+builder.UseMySerilog();
 
 var app = builder.Build();
 

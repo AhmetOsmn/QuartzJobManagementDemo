@@ -27,25 +27,6 @@ builder.Services.AddScoped<IMessageCreatedEventPublisher, MessageCreatedEventPub
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IJobService, JobService>();
 
-//builder.Services.AddQuartz(cfg =>
-//{
-//    cfg.UsePersistentStore(store =>
-//    {
-//        store.UseProperties = true;
-//        store.UseSystemTextJsonSerializer();
-
-//        if (database == "SqlServer")
-//            store.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer") ?? throw new InvalidOperationException("Connection string is null or empty."));
-
-//        else if (database == "Postgres")
-//            store.UsePostgres(builder.Configuration.GetConnectionString("Postgres") ?? throw new InvalidOperationException("Connection string is null or empty."));
-//    });
-//});
-//builder.Services.AddQuartzHostedService(opt =>
-//{
-//    opt.WaitForJobsToComplete = true;
-//});
-
 builder.Services.AddMassTransit(x =>
 {    
     x.UsingRabbitMq((context, cfg) =>

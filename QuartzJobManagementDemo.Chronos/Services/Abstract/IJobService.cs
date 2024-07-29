@@ -5,7 +5,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Abstract
 {
     public interface IJobService
     {
-        Task<ResponseDto<object>> AddAsync(string name, Dictionary<string, string> parameters, Type jobType);
+        Task<ResponseDto<object>> AddAsync(string name, Dictionary<string, string> parameters, string jobType);
         Task<ResponseDto<object>> ScheduleAsync(string jobName, string cronExpression);
         Task<ResponseDto<object>> DeleteAsync(string name);
         Task<ResponseDto<object>> DeleteJobScheduleAsync(string name);

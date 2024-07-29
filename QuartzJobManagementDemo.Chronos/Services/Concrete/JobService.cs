@@ -1,5 +1,6 @@
 ﻿using Quartz;
 using Quartz.Impl.Matchers;
+using QuartzJobManagementDemo.Chronos.QuartzJobs;
 using QuartzJobManagementDemo.Chronos.Services.Abstract;
 using QuartzJobManagementDemo.Shared.Dtos;
 using QuartzJobManagementDemo.Shared.Dtos.Job;
@@ -11,14 +12,26 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
     {
         private readonly ISchedulerFactory _schedulerFactory = schedulerFactory;
 
-        public async Task<ResponseDto<object>> AddAsync(string name, Dictionary<string, string> parameters, Type jobType)
+        public async Task<ResponseDto<object>> AddAsync(string name, Dictionary<string, string> parameters, string jobType)
         {
             try
             {
                 var scheduler = await _schedulerFactory.GetScheduler();
-                var job = JobBuilder.Create(jobType).WithIdentity(name).UsingJobData(new(parameters)).StoreDurably().Build();
-                await scheduler.AddJob(job, false);
+                IJobDetail? job = null;
 
+                switch (jobType)
+                {
+                    case "MessagePrinter":
+                        job = JobBuilder.Create<MessagePrinterJob>().WithIdentity(name).UsingJobData(new(parameters)).StoreDurably().Build();
+                        break;
+
+                    default:
+                        break;
+                }
+
+                if (job == null) return new("Job type not found.", null, false);
+
+                await scheduler.AddJob(job, false);
                 return new("Job added successfully.", null, true);
             }
             catch (Exception exception)

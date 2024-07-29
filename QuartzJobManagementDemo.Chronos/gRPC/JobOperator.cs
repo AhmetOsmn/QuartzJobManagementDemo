@@ -1,8 +1,5 @@
 ﻿using Chronos.Server;
-using Google.Protobuf;
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Quartz;
 using QuartzJobManagementDemo.Chronos.Services.Abstract;
 using Empty = Chronos.Server.Empty;
 
@@ -13,92 +10,73 @@ namespace QuartzJobManagementDemo.Chronos.gRPC
     {
         private readonly IJobService _jobService = jobService;
 
-        public override async Task<ResponseDto> AddAsync(AddRequest request, ServerCallContext context)
+        public override async Task<Bool> AddAsync(AddRequest request, ServerCallContext context)
         {
-            var temp = request.JobType.GetType();
+            var parameters = new Dictionary<string, string>();
 
-            System.Type jobType = System.Type.GetType(request.JobType.ToString());
-
-            if (jobType == null || !typeof(IJob).IsAssignableFrom(jobType))
+            foreach (var parameter in request.Parameters.Pairs)
             {
-                return new ResponseDto { Message = "Invalid job type.", Success = false };
+                parameters.Add(parameter.Key, parameter.Value);
             }
 
-            Dictionary<string, string> parameters = new();
-            foreach (var item in request.Parameters.Pairs)
-            {
-                parameters.Add(item.Key, item.Value);
-            }
+            var response = await _jobService.AddAsync(request.Name, parameters, request.JobType);
 
-            var response = await _jobService.AddAsync(request.Name, parameters, jobType);
-
-            return new()
-            {
-                Data = ConvertToGrpcAny(response.Data),
-                Message = response.Message,
-                Success = response.Success
-            };
+            return new() { Status = response.Success };
         }
 
-        public override async Task<ResponseDto> DeleteAsync(DeleteRequest request, ServerCallContext context)
-        {
-            var response = await _jobService.DeleteAsync(request.Name);
-
-            return new()
-            {
-                Data = ConvertToGrpcAny(response.Data),
-                Message = response.Message,
-                Success = response.Success
-            };
-        }
-
-        public override async Task<ResponseDto> DeleteJobScheduleAsync(DeleteJobScheduleRequest request, ServerCallContext context)
-        {
-            var response = await _jobService.DeleteJobScheduleAsync(request.Name);
-
-            return new()
-            {
-                Data = ConvertToGrpcAny(response.Data),
-                Message = response.Message,
-                Success = response.Success
-            };
-        }
-
-        public override async Task<ResponseDto> GetAllAsync(Empty request, ServerCallContext context)
-        {
-            var response = await _jobService.GetAllAsync();
-
-            return new()
-            {
-                Data = ConvertToGrpcAny(response.Data),
-                Message = response.Message,
-                Success = response.Success
-            };
-        }
-
-        public override async Task<ResponseDto> GetJobSchedulesAsync(Empty request, ServerCallContext context)
+        public override async Task<GetJobSchedulesResponse> GetJobSchedulesAsync(Empty request, ServerCallContext context)
         {
             var response = await _jobService.GetJobSchedulesAsync();
 
-            return new()
+            var result = new GetJobSchedulesResponse();
+
+            if (response.Success && response.Data != null)
             {
-                Data = ConvertToGrpcAny(response.Data),
-                Message = response.Message,
-                Success = response.Success
-            };
+                foreach (var item in response.Data)
+                {
+                    result.JobSchedules.Add(new JobScheduleDto() { Name = item.Name, CronExpression = item.Cron });
+                }
+            }
+
+            return result;
         }
 
-        public override async Task<ResponseDto> ScheduleAsync(ScheduleRequest request, ServerCallContext context)
+        public override async Task<Bool> DeleteAsync(DeleteRequest request, ServerCallContext context)
+        {
+            var response = await _jobService.DeleteAsync(request.Name);
+
+            return new Bool() { Status = response.Success };
+        }
+
+        public override async Task<Bool> DeleteJobScheduleAsync(DeleteJobScheduleRequest request, ServerCallContext context)
+        {
+            var response = await _jobService.DeleteJobScheduleAsync(request.Name);
+
+            return new Bool() { Status = response.Success };
+        }
+
+        public override async Task<GetAllResponse> GetAllAsync(Empty request, ServerCallContext context)
+        {
+            GetAllResponse result = new();
+
+            var response = await _jobService.GetAllAsync();
+
+            if (response.Success && response.Data != null)
+            {
+                foreach (var item in response.Data)
+                {
+                    result.Jobs.Add(new JobDto() { CreatedBy = item.CreatedBy, Message = item.Message, Name = item.Name, Type = item.Type });
+                }
+            }
+
+            return result;
+        }
+
+        public override async Task<Bool> ScheduleAsync(ScheduleRequest request, ServerCallContext context)
         {
             var response = await _jobService.ScheduleAsync(request.JobName, request.CronExpression);
-            return new()
-            {
-                Data = ConvertToGrpcAny(response.Data),
-                Message = response.Message,
-                Success = response.Success
-            };
-        }
 
-        private Any? ConvertToGrpcAny(object? data) => data != null ? Any.Pack((IMessage)data) : null;
+            return new Bool() { Status = response.Success };
+        }
     }
 }

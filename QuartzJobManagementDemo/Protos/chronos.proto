@@ -2,20 +2,12 @@
 
 option csharp_namespace = "Chronos.Client";
 
-import "google/protobuf/any.proto";
-
 package GrpcJobService;
-
-message ResponseDto {
-    string message = 1;
-    google.protobuf.Any data = 2;
-    bool success = 3;
-}
 
 message AddRequest {
     string name = 1;
     Dictionary parameters = 2;
-    google.protobuf.Any jobType = 3;
+    string jobType = 3;
 }
 
 message DeleteRequest {
@@ -42,11 +34,33 @@ message Dictionary {
    repeated Pair pairs = 1;
 }
 
+message JobDto {
+    string name = 1;
+	string type = 2;
+	string message= 3;
+	string createdBy= 4;
+}
+
+message JobScheduleDto {
+	string name = 1;
+	string cronExpression = 2;	
+}
+
+message GetJobSchedulesResponse {
+    repeated JobScheduleDto jobSchedules = 1;
+}
+
+message GetAllResponse {
+	repeated JobDto jobs = 1;
+}
+
+message Bool {   bool status = 1; }
+
 service GrpcJobService {
-    rpc AddAsync (AddRequest) returns (ResponseDto);
-    rpc DeleteAsync (DeleteRequest) returns (ResponseDto);
-    rpc DeleteJobScheduleAsync (DeleteJobScheduleRequest) returns (ResponseDto);
-    rpc GetAllAsync (Empty) returns (ResponseDto);
-    rpc GetJobSchedulesAsync (Empty) returns (ResponseDto);
-    rpc ScheduleAsync (ScheduleRequest) returns (ResponseDto);
+    rpc AddAsync (AddRequest) returns (Bool);
+    rpc DeleteAsync (DeleteRequest) returns (Bool);
+    rpc DeleteJobScheduleAsync (DeleteJobScheduleRequest) returns (Bool);
+    rpc GetAllAsync (Empty) returns (GetAllResponse);
+    rpc GetJobSchedulesAsync (Empty) returns (GetJobSchedulesResponse);
+    rpc ScheduleAsync (ScheduleRequest) returns (Bool);
 }

@@ -10,11 +10,13 @@ namespace QuartzJobManagementDemo.Controllers
     {
         private readonly IMessageService _messageService;
         private readonly IJobService _jobService;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(IMessageService messageService, IJobService jobService)
+        public HomeController(IMessageService messageService, IJobService jobService, IConfiguration configuration)
         {
             _messageService = messageService;
             _jobService = jobService;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
@@ -41,11 +43,20 @@ namespace QuartzJobManagementDemo.Controllers
 
             try
             {
+                var database = _configuration["Database"] ?? throw new InvalidOperationException("Database string not found.");
+
+                var connectionString = database == "Postgres" ? _configuration.GetConnectionString("Postgres") : _configuration.GetConnectionString("SqlServer");
+
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new InvalidOperationException($"{database} Connection string not found.");
+
                 await _jobService.AddAsync(saveJobRequestModel.JobName, new() {
                         { "Message", saveJobRequestModel.MessageText ?? string.Empty },
                         { "CreatedBy", saveJobRequestModel.CreatedBy },
+                        { "ConnectionString", connectionString},
+                        { "Database",  database},
                         { "CreatedDate", saveJobRequestModel.CreatedDate.ToString() }
-                    });
+                    }, saveJobRequestModel.JobType);
             }
             catch (Exception ex)
             {
