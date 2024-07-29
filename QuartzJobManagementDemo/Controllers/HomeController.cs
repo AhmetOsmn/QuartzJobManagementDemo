@@ -25,14 +25,14 @@ namespace QuartzJobManagementDemo.Controllers
                 var jobs = await _jobService.GetAllAsync();
                 var customJobSchedules = await _jobService.GetJobSchedulesAsync();
 
-                return View(new IndexViewModel() { Messages = messages, CustomJobs = jobs, CustomJobSchedules = customJobSchedules });
+                return View(new IndexViewModel() { Messages = messages, CustomJobs = jobs?.Data?.ToList() ?? [], CustomJobSchedules = customJobSchedules?.Data?.ToList() ?? [] });
 
             }
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
                 Log.Error(ex, "An error occurred while getting index page.");
-                return View(new IndexViewModel() { CustomJobs = new(), Messages = new() });
+                return View(new IndexViewModel() { CustomJobs = [], Messages = [] });
             }
         }
 
@@ -41,16 +41,11 @@ namespace QuartzJobManagementDemo.Controllers
 
             try
             {
-                await _jobService.AddAsync(new JobViewModel()
-                {
-                    Name = saveJobRequestModel.JobName,
-                    Type = saveJobRequestModel.JobType,
-                    Parameters = new() {
+                await _jobService.AddAsync(saveJobRequestModel.JobName, new() {
                         { "Message", saveJobRequestModel.MessageText ?? string.Empty },
                         { "CreatedBy", saveJobRequestModel.CreatedBy },
                         { "CreatedDate", saveJobRequestModel.CreatedDate.ToString() }
-                    }
-                });
+                    });
             }
             catch (Exception ex)
             {

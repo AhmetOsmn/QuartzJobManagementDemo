@@ -11,12 +11,12 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
     {
         private readonly ISchedulerFactory _schedulerFactory = schedulerFactory;
 
-        public async Task<ResponseDto> AddAsync<TJob>(AddJobDto addJobDto) where TJob : IJob
+        public async Task<ResponseDto<object>> AddAsync(string name, Dictionary<string, string> parameters, Type jobType)
         {
             try
             {
                 var scheduler = await _schedulerFactory.GetScheduler();
-                var job = JobBuilder.Create<TJob>().WithIdentity(addJobDto.Name).UsingJobData(new(addJobDto.Parameters)).StoreDurably().Build();
+                var job = JobBuilder.Create(jobType).WithIdentity(name).UsingJobData(new(parameters)).StoreDurably().Build();
                 await scheduler.AddJob(job, false);
 
                 return new("Job added successfully.", null, true);
@@ -28,7 +28,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
             }
         }
 
-        public async Task<ResponseDto> DeleteAsync(string name)
+        public async Task<ResponseDto<object>> DeleteAsync(string name)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
             }
         }
 
-        public async Task<ResponseDto> DeleteJobScheduleAsync(string name)
+        public async Task<ResponseDto<object>> DeleteJobScheduleAsync(string name)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
             }
         }
 
-        public async Task<ResponseDto> GetAllAsync()
+        public async Task<ResponseDto<IEnumerable<JobDto>>> GetAllAsync()
         {
             try
             {
@@ -103,7 +103,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
             }
         }
 
-        public async Task<ResponseDto> GetJobSchedulesAsync()
+        public async Task<ResponseDto<IEnumerable<JobScheduleDto>>> GetJobSchedulesAsync()
         {
             try
             {
@@ -143,7 +143,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
             }
         }
 
-        public async Task<ResponseDto> ScheduleAsync(string jobName, string cronExpression)
+        public async Task<ResponseDto<object>> ScheduleAsync(string jobName, string cronExpression)
         {
             try
             {

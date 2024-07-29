@@ -134,7 +134,7 @@
                 <tr>
                     <td>@item.Name</td>
                     <td>@item.Type</td>
-                    <td>@item.Text</td>
+                    <td>@item.Message</td>
                     <td>@item.CreatedBy</td>
                     <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJob" asp-route-name="@item.Name">Sil</a></td>
                 </tr>
@@ -158,7 +158,7 @@
             {
                 <tr>
                     <th scope="row">@item.Name</th>
-                    <td>@item.CRON</td>
+                    <td>@item.Cron</td>
                     <td><a class="btn btn-danger" asp-controller="Home" asp-action="DeleteJobSchedule" asp-route-name="@item.Name">Sil</a></td>
                 </tr>
 

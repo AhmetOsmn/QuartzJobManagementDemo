@@ -1,4 +1,4 @@
 ﻿namespace QuartzJobManagementDemo.Shared.Dtos
 {
-    public record ResponseDto(string Message, object? Data, bool Success);
+    public record ResponseDto<T>(string Message, T? Data, bool Success);
 }
