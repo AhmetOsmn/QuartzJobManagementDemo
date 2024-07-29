@@ -1,4 +1,4 @@
-﻿namespace QuartzJobManagementDemo.Publishers
+﻿namespace QuartzJobManagementDemo.Chronos.Masstransit.Publishers.Interfaces
 {
     public interface IMessageCreatedEventPublisher
     {

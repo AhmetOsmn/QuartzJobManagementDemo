@@ -3,13 +3,16 @@ using MassTransit;
 using Microsoft.Data.SqlClient;
 using Npgsql;
 using Quartz;
+using QuartzJobManagementDemo.Chronos.Masstransit.Publishers.Interfaces;
 using Serilog;
 using System.Data;
 
 namespace QuartzJobManagementDemo.Chronos.QuartzJobs
 {
-    public class MessagePrinterJob() : IJob
+    public class MessagePrinterJob(INotificationEventPublisher notificationEventPublisher) : IJob
     {
+        private readonly INotificationEventPublisher _notificationEventPublisher = notificationEventPublisher;
+
         public async Task Execute(IJobExecutionContext context)
         {
             await Task.Run(() =>
@@ -34,14 +37,18 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
                     ValidateData(connectionStringData, connectionString);
                     ValidateData(dataBaseData, dataBase);
 
+                    int messageId = 0;
+
                     if (dataBaseData == "Postgres")
                     {
-                        PostgresInsertMessage(messageData!, createdByData!, DateTime.Parse(createdDateData!).ToUniversalTime(), connectionStringData!);
+                        messageId = PostgresInsertMessage(messageData!, createdByData!, DateTime.Parse(createdDateData!).ToUniversalTime(), connectionStringData!);
                     }
                     else
                     {
-                        SqlServerInsertMessage(messageData!, createdByData!, DateTime.Parse(createdDateData!).ToUniversalTime(), connectionStringData!);
+                        messageId = SqlServerInsertMessage(messageData!, createdByData!, DateTime.Parse(createdDateData!).ToUniversalTime(), connectionStringData!);
                     }
+
+                    _notificationEventPublisher.Publish($"Message created with id:{messageId}, text: {messageData}");
                 }
                 catch (Exception ex)
                 {
@@ -55,8 +62,9 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
             if (data == null) throw new ArgumentNullException($"Message Printer Job {dataName} is null");
         }
 
-        private void PostgresInsertMessage(string text, string createdBy, DateTime createdDate, string connectionString)
+        private int PostgresInsertMessage(string text, string createdBy, DateTime createdDate, string connectionString)
         {
+            int id = 0;
             using (IDbConnection connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
@@ -70,14 +78,16 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
                 };
 
                 string insertQuery = "INSERT INTO \"Messages\" (\"Text\", \"JobCreatedDate\", \"CreatedBy\", \"CreatedDate\") VALUES (@Text, @JobCreatedDate, @CreatedBy, @CreatedDate) RETURNING \"Id\";";
-                var id = connection.ExecuteScalar<int>(insertQuery, newMessage);
-
+                id = connection.ExecuteScalar<int>(insertQuery, newMessage);
                 Log.Information($"Inserted message with ID: {id}");
             }
+            return id;
         }
 
-        private void SqlServerInsertMessage(string text, string createdBy, DateTime createdDate, string connectionString)
+        private int SqlServerInsertMessage(string text, string createdBy, DateTime createdDate, string connectionString)
         {
+            int id = 0;
+
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -94,11 +104,10 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
                 INSERT INTO Messages (Text, JobCreatedDate, CreatedBy, CreatedDate) 
                 VALUES (@Text, @JobCreatedDate, @CreatedBy, @CreatedDate);
                 SELECT CAST(SCOPE_IDENTITY() as int);";
-
-                var id = connection.ExecuteScalar<int>(insertQuery, newMessage);
-
-                Console.WriteLine($"Inserted message with ID: {id}");
+                id = connection.ExecuteScalar<int>(insertQuery, newMessage);
+                Log.Information($"Inserted message with ID: {id}");
             }
+            return id;
         }
     }
 }

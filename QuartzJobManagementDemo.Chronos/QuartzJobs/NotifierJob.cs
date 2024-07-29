@@ -20,7 +20,7 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
 
             NotifyService.Notify(user, message);
             
-            await _bus.Publish<NotificationSent>(new(user, message));
+            await _bus.Publish<Notification>(new(message));
         }
     }
 }

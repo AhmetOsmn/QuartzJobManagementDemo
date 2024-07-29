@@ -7,8 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using QuartzJobManagementDemo.Chronos;
-using QuartzJobManagementDemo.Chronos.Consumers;
 using QuartzJobManagementDemo.Chronos.gRPC;
+using QuartzJobManagementDemo.Chronos.Masstransit.Consumers;
+using QuartzJobManagementDemo.Chronos.Masstransit.Publishers;
+using QuartzJobManagementDemo.Chronos.Masstransit.Publishers.Interfaces;
 using QuartzJobManagementDemo.Chronos.Services.Abstract;
 using QuartzJobManagementDemo.Chronos.Services.Concrete;
 using QuartzJobManagementDemo.QuartzJobManagementDemo.Chronos.Context;
@@ -43,7 +45,8 @@ builder.Services.AddDbContext<ChronosDbContext>(opt =>
         opt.UseNpgsql(postgresConnectionString);
 });
 
-
+builder.Services.AddScoped<IMessageCreatedEventPublisher, MessageCreatedEventPublisher>();
+builder.Services.AddScoped<INotificationEventPublisher, NotificationEventPublisher>();
 builder.Services.AddScoped<IMessageCreatedEventService, MessageCreatedEventService>();
 builder.Services.AddScoped<IJobService, JobService>();
 

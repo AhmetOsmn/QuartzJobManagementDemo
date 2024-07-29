@@ -2,11 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 using QuartzJobManagementDemo.Context;
-using QuartzJobManagementDemo.Publishers;
+using QuartzJobManagementDemo.Masstransit.Consumers;
 using QuartzJobManagementDemo.Services.Abstract;
 using QuartzJobManagementDemo.Services.Concrete;
 using QuartzJobManagementDemo.Shared;
 using QuartzJobManagementDemo.Shared.Extensions;
+using QuartzJobManagementDemo.SignalR.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,12 +24,15 @@ builder.Services.AddDbContext<JobDemoContext>(opt =>
         opt.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
 });
 
-builder.Services.AddScoped<IMessageCreatedEventPublisher, MessageCreatedEventPublisher>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IJobService, JobService>();
 
+builder.Services.AddSignalR();
+
 builder.Services.AddMassTransit(x =>
-{    
+{
+    x.AddConsumer<NotificationEventConsumer>();
+
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.Host(new Uri(RmqConfig.RmqUri), h =>
@@ -63,5 +67,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

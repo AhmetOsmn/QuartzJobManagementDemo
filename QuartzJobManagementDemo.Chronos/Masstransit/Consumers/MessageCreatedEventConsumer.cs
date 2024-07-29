@@ -3,7 +3,7 @@ using QuartzJobManagementDemo.Chronos.Services.Abstract;
 using QuartzJobManagementDemo.Chronos.Services.Concrete;
 using QuartzJobManagementDemo.Shared.Messages.Event;
 
-namespace QuartzJobManagementDemo.Chronos.Consumers
+namespace QuartzJobManagementDemo.Chronos.Masstransit.Consumers
 {
     public class MessageCreatedEventConsumer(IMessageCreatedEventService messageCreatedEventService) : IConsumer<MessageCreated>
     {
@@ -13,7 +13,7 @@ namespace QuartzJobManagementDemo.Chronos.Consumers
         {
             var message = context.Message;
 
-            await _messageCreatedEventService.AddAsync(message.MessageId, message.Message, message.Sender, message.Receiver); 
+            await _messageCreatedEventService.AddAsync(message.MessageId, message.Message, message.Sender, message.Receiver);
 
             await Task.Delay(5000);
         }
