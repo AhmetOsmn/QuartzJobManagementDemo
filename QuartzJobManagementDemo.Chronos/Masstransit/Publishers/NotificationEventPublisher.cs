@@ -12,7 +12,7 @@ namespace QuartzJobManagementDemo.Chronos.Masstransit.Publishers
         public async Task Publish(string message)
         {
             await _bus.Publish(new Notification(message));
-            Log.Information("MessageCreatedEvent published with Message: {message}", message);
+            Log.Information("Notification published with Message: {message}", message);
         }
     }
 }

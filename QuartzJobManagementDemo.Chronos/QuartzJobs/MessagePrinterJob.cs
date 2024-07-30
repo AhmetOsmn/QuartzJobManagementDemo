@@ -5,6 +5,7 @@ using Npgsql;
 using Quartz;
 using QuartzJobManagementDemo.Chronos.Masstransit.Publishers.Interfaces;
 using Serilog;
+using System;
 using System.Data;
 
 namespace QuartzJobManagementDemo.Chronos.QuartzJobs
@@ -50,9 +51,14 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
 
                     _notificationEventPublisher.Publish($"Message created with id:{messageId}, text: {messageData}");
                 }
-                catch (Exception ex)
+                catch (JobExecutionException jobExecutionException)
                 {
-                    Log.Error(ex, $"Message Printer Job Failed: {ex.Message}");
+                    Log.Error(jobExecutionException, $"Message Printer Job Execution Exception: {jobExecutionException.Message}");                    
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception, $"Message Printer Job Failed: {exception.Message}");
                 }
             });
         }
@@ -109,5 +115,8 @@ namespace QuartzJobManagementDemo.Chronos.QuartzJobs
             }
             return id;
         }
+    
+        // create a function to generate random 1-10 number and validates it is even or odd
+       
     }
 }

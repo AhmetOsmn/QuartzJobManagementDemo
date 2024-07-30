@@ -1,6 +1,8 @@
 ﻿using Quartz;
 using Quartz.Impl.Matchers;
 using QuartzJobManagementDemo.Chronos.QuartzJobs;
+using QuartzJobManagementDemo.Chronos.QuartzJobs.JobListeners;
+using QuartzJobManagementDemo.Chronos.QuartzJobs.TriggerListeners;
 using QuartzJobManagementDemo.Chronos.Services.Abstract;
 using QuartzJobManagementDemo.Shared.Dtos;
 using QuartzJobManagementDemo.Shared.Dtos.Job;
@@ -23,6 +25,8 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
                 {
                     case "MessagePrinter":
                         job = JobBuilder.Create<MessagePrinterJob>().WithIdentity(name).UsingJobData(new(parameters)).StoreDurably().Build();
+                        scheduler.ListenerManager.AddJobListener(new MessagePrinterJobListener());
+                        scheduler.ListenerManager.AddTriggerListener(new MessagePrinterTriggerListener());
                         break;
 
                     default:
@@ -45,7 +49,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
         {
             try
             {
-                var scheduler = await _schedulerFactory.GetScheduler();                
+                var scheduler = await _schedulerFactory.GetScheduler();
                 var response = await scheduler.DeleteJob(new(name));
                 return response ? new("Job deleted successfully.", null, true) : new("Job not found.", null, false);
             }
@@ -106,7 +110,7 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
                         jobDtos.Add(jobDto);
                     }
                 }
-                
+
                 return new("Jobs retrieved successfully.", jobDtos, true);
             }
             catch (Exception exception)
@@ -146,12 +150,12 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
                     }
 
                 }
-                
+
                 return new("Job schedules retrieved successfully.", JobScheduleDtos, true);
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "Error occurred while getting job schedules.");                
+                Log.Error(exception, "Error occurred while getting job schedules.");
                 return new(exception.Message, null, false);
             }
         }
