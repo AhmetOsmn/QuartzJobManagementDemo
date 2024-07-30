@@ -1,4 +1,4 @@
-# QuartzJobManagementDemo
+# Quartz Job Management Demo
 
 ## Gereksinimler
 
@@ -46,6 +46,9 @@
 
 - Sonrasında migration ekleyerek database'i oluşturabilirsiniz. 
   Son olarak, Quartz için gerekli tabloları oluşturmak için seçtiğiniz database'e uygun olan script'i [buradan](https://github.com/quartznet/quartznet/tree/main/database/tables) alarak çalıştırmalısınız.
+
+## Mimari
+![image](https://github.com/user-attachments/assets/8e55329c-1337-4348-a5a9-a49702accbf3)
 
 ## Job Tanımlama Alanı
 
