@@ -4,6 +4,10 @@
 
 - SqlServer veya Postgres database.
 - Elasticsearch
+  - Elastic için bir adet network oluşturmak için:
+
+        docker network create elastic-net
+       
   - Elasticsearch  container'ı oluşturmak için alt kısımdaki komutu kullanabilirsiniz (password düzeltilmeli):
         
         docker run -p 127.0.0.1:9200:9200 -d --name elasticsearch --network elastic-net -e ELASTIC_PASSWORD=elasticPassword -e "discovery.type=single-node" -e "xpack.security.http.ssl.enabled=false" -e "xpack.license.self_generated.type=trial" docker.elastic.co/elasticsearch/elasticsearch:8.14.3
