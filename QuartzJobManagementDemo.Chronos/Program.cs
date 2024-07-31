@@ -19,7 +19,6 @@ using QuartzJobManagementDemo.Shared.Extensions;
 
 Console.Title = "Chronos";
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = new ConfigurationBuilder()
@@ -70,8 +69,18 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddHostedService<MassTransitConsoleHostedService>();
 
+builder.Services.Configure<QuartzOptions>(builder.Configuration.GetSection("Quartz"));
+
+builder.Services.Configure<QuartzOptions>(options =>
+{
+    options.Scheduling.IgnoreDuplicates = true;
+    options.Scheduling.OverWriteExistingData = true;
+});
+
 builder.Services.AddQuartz(cfg =>
 {
+    cfg.CheckConfiguration = true;
+
     cfg.UsePersistentStore(store =>
     {
         store.UseProperties = true;
@@ -83,6 +92,7 @@ builder.Services.AddQuartz(cfg =>
         else if (database == "Postgres")
             store.UsePostgres(postgresConnectionString);
     });
+
 });
 builder.Services.AddQuartzHostedService(opt =>
 {

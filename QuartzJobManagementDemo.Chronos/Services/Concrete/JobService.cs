@@ -1,5 +1,6 @@
 ﻿using Quartz;
 using Quartz.Impl.Matchers;
+using Quartz.Plugin.Interrupt;
 using QuartzJobManagementDemo.Chronos.QuartzJobs;
 using QuartzJobManagementDemo.Chronos.QuartzJobs.JobListeners;
 using QuartzJobManagementDemo.Chronos.QuartzJobs.TriggerListeners;
@@ -24,7 +25,12 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
                 switch (jobType)
                 {
                     case "MessagePrinter":
-                        job = JobBuilder.Create<MessagePrinterJob>().WithIdentity(name).UsingJobData(new(parameters)).StoreDurably().Build();
+                        job = JobBuilder.Create<MessagePrinterJob>()
+                                        .WithIdentity(name)
+                                        .UsingJobData(new(parameters))
+                                        .StoreDurably()                                        
+                                        .Build();
+
                         scheduler.ListenerManager.AddJobListener(new MessagePrinterJobListener());
                         scheduler.ListenerManager.AddTriggerListener(new MessagePrinterTriggerListener());
                         break;
