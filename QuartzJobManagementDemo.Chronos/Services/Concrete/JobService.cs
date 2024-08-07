@@ -138,10 +138,6 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
 
                 foreach (var jobKey in jobKeys)
                 {
-                    var jobDetail = await scheduler.GetJobDetail(jobKey);
-
-                    if (jobDetail == null) continue;
-
                     var triggersOfJob = await scheduler.GetTriggersOfJob(jobKey);
 
                     if (triggersOfJob == null || triggersOfJob.Count == 0) continue;
@@ -191,7 +187,6 @@ namespace QuartzJobManagementDemo.Chronos.Services.Concrete
                 Log.Error(exception, "Error occurred while scheduling job.");
                 return new(exception.Message, null, false);
             }
-
         }
     }
 }
